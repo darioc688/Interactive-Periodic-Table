@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Periodic Table</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* FULL CSS */
+        body { font-family: 'Roboto', sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 2px; }
+        .element { background: #2b2b2b; padding: 10px; border-radius: 4px; transition: all 0.3s ease; cursor: pointer; }
+        .element:hover { transform: scale(1.2); z-index: 100; background: #3a3a3a; }
+        .info-panel { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; width: 300px; }
+        .atomic-structure { width: 200px; height: 200px; margin: 20px auto; position: relative; }
+        .electron { position: absolute; width: 8px; height: 8px; background: #4fc3f7; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="periodic-table" id="periodicTable"></div>
+        <div class="info-panel" id="infoPanel">
+            <h2 id="elementName"></h2>
+            <div class="atomic-structure" id="atomicStructure"></div>
+            <p>Atomic Number: <span id="atomicNumber"></span></p>
+            <p>Atomic Weight: <span id="atomicWeight"></span></p>
+            <p>Electron Configuration: <span id="electronConfig"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // SAMPLE ELEMENTS (Full list required for production)
+        const elements = [
+            { symbol: 'H', name: 'Hydrogen', number: 1, weight: 1.008, config: '1s¹', x: 1, y: 1 },
+            { symbol: 'He', name: 'Helium', number: 2, weight: 4.0026, config: '1s²', x: 18, y: 1 },
+            { symbol: 'Li', name: 'Lithium', number: 3, weight: 6.94, config: '[He] 2s¹', x: 1, y: 2 },
+            { symbol: 'Be', name: 'Beryllium', number: 4, weight: 9.0122, config: '[He] 2s²', x: 2, y: 2 }
+        ];
+
+        function createPeriodicTable() {
+            const table = d3.select('#periodicTable');
+            
+            // Create grid cells
+            for (let row = 1; row <= 7; row++) {
+                for (let col = 1; col <= 18; col++) {
+                    const element = elements.find(e => e.x === col && e.y === row);
+                    const cell = table.append('div')
+                        .style('grid-column', col)
+                        .style('grid-row', row)
+                        .classed('element', !!element);
+
+                    if (element) {
+                        cell.html(`<div class="number">${element.number}</div>
+                                  <div class="symbol">${element.symbol}</div>`)
+                            .on('mouseover', () => showElementInfo(element))
+                            .on('mouseout', () => d3.select('#infoPanel').style('display', 'none'));
+                    }
+                }
+            }
+        }
+
+        function showElementInfo(element) {
+            const panel = d3.select('#infoPanel');
+            panel.style('display', 'block')
+                .select('#elementName').text(element.name);
+            
+            document.getElementById('atomicNumber').textContent = element.number;
+            document.getElementById('atomicWeight').textContent = element.weight;
+            document.getElementById('electronConfig').textContent = element.config;
+
+            // Electron visualization
+            const electrons = element.config.match(/\d+[spdf]\d+/g) || [];
+            const structure = d3.select('#atomicStructure').html('');
+            electrons.forEach((orbital, i) => {
+                const electrons = parseInt(orbital.match(/\d+$/)[0]);
+                const radius = (i + 1) * 30;
+                Array.from({length: electrons}).forEach((_, j) => {
+                    structure.append('div')
+                        .classed('electron', true)
+                        .style('transform', `rotate(${(360/electrons)*j}deg) translate(${radius}px)`)
+                        .style('animation', `orbit ${3+(i*2)}s linear infinite`);
+                });
+            });
+        }
+
+        // Initialize
+        createPeriodicTable();
+    </script>
+</body>
+</html>
