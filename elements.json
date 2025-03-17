@@ -1,0 +1,166 @@
+[
+    {
+        "simbolo": "H",
+        "nombre": "Hidrógeno",
+        "numero": 1,
+        "peso": 1.008,
+        "config": "1s¹",
+        "x": 1,
+        "y": 1,
+        "grupo": "No metal",
+        "color": "#A4D4AE"
+    },
+    {
+        "simbolo": "He",
+        "nombre": "Helio",
+        "numero": 2,
+        "peso": 4.0026,
+        "config": "1s²",
+        "x": 18,
+        "y": 1,
+        "grupo": "Gas noble",
+        "color": "#89CFF0"
+    },
+    {
+        "simbolo": "Li",
+        "nombre": "Litio",
+        "numero": 3,
+        "peso": 6.94,
+        "config": "[He] 2s¹",
+        "x": 1,
+        "y": 2,
+        "grupo": "Alcalino",
+        "color": "#F6BD20"
+    },
+    {
+        "simbolo": "Be",
+        "nombre": "Berilio",
+        "numero": 4,
+        "peso": 9.0122,
+        "config": "[He] 2s²",
+        "x": 2,
+        "y": 2,
+        "grupo": "Alcalinotérreo",
+        "color": "#EECA22"
+    },
+    {
+        "simbolo": "B",
+        "nombre": "Boro",
+        "numero": 5,
+        "peso": 10.81,
+        "config": "[He] 2s² 2p¹",
+        "x": 13,
+        "y": 2,
+        "grupo": "Metaloide",
+        "color": "#A4D4AE"
+    },
+    {
+        "simbolo": "C",
+        "nombre": "Carbono",
+        "numero": 6,
+        "peso": 12.011,
+        "config": "[He] 2s² 2p²",
+        "x": 14,
+        "y": 2,
+        "grupo": "No metal",
+        "color": "#A4D4AE"
+    },
+    {
+        "simbolo": "N",
+        "nombre": "Nitrógeno",
+        "numero": 7,
+        "peso": 14.007,
+        "config": "[He] 2s² 2p³",
+        "x": 15,
+        "y": 2,
+        "grupo": "No metal",
+        "color": "#A4D4AE"
+    },
+    {
+        "simbolo": "O",
+        "nombre": "Oxígeno",
+        "numero": 8,
+        "peso": 15.999,
+        "config": "[He] 2s² 2p⁴",
+        "x": 16,
+        "y": 2,
+        "grupo": "No metal",
+        "color": "#A4D4AE"
+    },
+    {
+        "simbolo": "F",
+        "nombre": "Flúor",
+        "numero": 9,
+        "peso": 18.998,
+        "config": "[He] 2s² 2p⁵",
+        "x": 17,
+        "y": 2,
+        "grupo": "Halógeno",
+        "color": "#FFD700"
+    },
+    {
+        "simbolo": "Ne",
+        "nombre": "Neón",
+        "numero": 10,
+        "peso": 20.180,
+        "config": "[He] 2s² 2p⁶",
+        "x": 18,
+        "y": 2,
+        "grupo": "Gas noble",
+        "color": "#89CFF0"
+    },
+
+    // Continúa el patrón para todos los elementos...
+    
+    // Metales de transición
+    {
+        "simbolo": "Fe",
+        "nombre": "Hierro",
+        "numero": 26,
+        "peso": 55.845,
+        "config": "[Ar] 3d⁶ 4s²",
+        "x": 8,
+        "y": 4,
+        "grupo": "Transición",
+        "color": "#FD5E53"
+    },
+    
+    // Lantánidos
+    {
+        "simbolo": "La",
+        "nombre": "Lantano",
+        "numero": 57,
+        "peso": 138.91,
+        "config": "[Xe] 4f⁰ 5d¹ 6s²",
+        "x": 3,
+        "y": 8,
+        "grupo": "Lantánido",
+        "color": "#FFB347"
+    },
+    
+    // Actínidos
+    {
+        "simbolo": "Ac",
+        "nombre": "Actinio",
+        "numero": 89,
+        "peso": 227,
+        "config": "[Rn] 6d¹ 7s²",
+        "x": 3,
+        "y": 9,
+        "grupo": "Actínido",
+        "color": "#FFA07A"
+    },
+
+    // Últimos elementos
+    {
+        "simbolo": "Og",
+        "nombre": "Oganesón",
+        "numero": 118,
+        "peso": 294,
+        "config": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶",
+        "x": 18,
+        "y": 7,
+        "grupo": "Gas noble",
+        "color": "#89CFF0"
+    }
+]
