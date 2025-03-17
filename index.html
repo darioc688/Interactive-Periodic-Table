@@ -1,92 +1,262 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Periodic Table</title>
+    <title>Tabla Periódica Interactiva</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* FULL CSS */
-        body { font-family: 'Roboto', sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .periodic-table { display: grid; grid-template-columns: repeat(18, 1fr); gap: 2px; }
-        .element { background: #2b2b2b; padding: 10px; border-radius: 4px; transition: all 0.3s ease; cursor: pointer; }
-        .element:hover { transform: scale(1.2); z-index: 100; background: #3a3a3a; }
-        .info-panel { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; width: 300px; }
-        .atomic-structure { width: 200px; height: 200px; margin: 20px auto; position: relative; }
-        .electron { position: absolute; width: 8px; height: 8px; background: #4fc3f7; border-radius: 50%; }
+        :root {
+            --metal-alcalino: #F6BD20;
+            --metal-alcalinoterreo: #EECA22;
+            --metal-transicion: #FD5E53;
+            --lantanido: #FFB347;
+            --actinido: #FFA07A;
+            --no-metal: #A4D4AE;
+            --gas-noble: #89CFF0;
+            --halogeno: #FFD700;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tabla-periodica {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            gap: 3px;
+            position: relative;
+        }
+
+        .elemento {
+            padding: 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .elemento:hover {
+            transform: scale(1.25);
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .simbolo {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .numero {
+            font-size: 0.8em;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+        }
+
+        .nombre {
+            font-size: 0.7em;
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        .panel-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            width: 320px;
+            border: 1px solid #444;
+            display: none;
+        }
+
+        .estructura-electronica {
+            width: 220px;
+            height: 220px;
+            margin: 15px auto;
+            position: relative;
+            perspective: 1000px;
+        }
+
+        .orbita {
+            position: absolute;
+            border: 1px solid rgba(79, 195, 247, 0.3);
+            border-radius: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .electron {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(#4fc3f7, #2a9fd6);
+            border-radius: 50%;
+            transform-origin: center;
+            animation: spin infinite linear;
+            box-shadow: 0 0 8px #4fc3f7;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) translateX(50px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
+        }
+
+        .tipo-orbital {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: #4fc3f7;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="periodic-table" id="periodicTable"></div>
-        <div class="info-panel" id="infoPanel">
-            <h2 id="elementName"></h2>
-            <div class="atomic-structure" id="atomicStructure"></div>
-            <p>Atomic Number: <span id="atomicNumber"></span></p>
-            <p>Atomic Weight: <span id="atomicWeight"></span></p>
-            <p>Electron Configuration: <span id="electronConfig"></span></p>
+    <div class="contenedor">
+        <div class="tabla-periodica" id="tablaPeriodica"></div>
+        <div class="panel-info" id="panelInfo">
+            <h2 id="nombreElemento"></h2>
+            <div class="estructura-electronica" id="estructuraElectronica"></div>
+            <p>Número atómico: <span id="numeroAtomico"></span></p>
+            <p>Peso atómico: <span id="pesoAtomico"></span></p>
+            <p>Configuración electrónica: <span id="configElectronica"></span></p>
+            <p>Electronegatividad: <span id="electronegatividad"></span></p>
+            <p>Grupo: <span id="grupo"></span></p>
         </div>
     </div>
 
     <script>
-        // SAMPLE ELEMENTS (Full list required for production)
-        const elements = [
-            { symbol: 'H', name: 'Hydrogen', number: 1, weight: 1.008, config: '1s¹', x: 1, y: 1 },
-            { symbol: 'He', name: 'Helium', number: 2, weight: 4.0026, config: '1s²', x: 18, y: 1 },
-            { symbol: 'Li', name: 'Lithium', number: 3, weight: 6.94, config: '[He] 2s¹', x: 1, y: 2 },
-            { symbol: 'Be', name: 'Beryllium', number: 4, weight: 9.0122, config: '[He] 2s²', x: 2, y: 2 }
+        // Datos completos de los elementos en español
+        const elementos = [
+            // Grupo 1-2
+            { simbolo: 'H', nombre: 'Hidrógeno', numero: 1, peso: 1.008, config: '1s¹', electronegatividad: 2.20, grupo: 'No metal', x: 1, y: 1, color: 'var(--no-metal)' },
+            { simbolo: 'Li', nombre: 'Litio', numero: 3, peso: 6.94, config: '[He] 2s¹', electronegatividad: 0.98, grupo: 'Alcalino', x: 1, y: 2, color: 'var(--metal-alcalino)' },
+            
+            // ... Agregar todos los 118 elementos ...
+
+            // Ejemplo de elemento pesado
+            { simbolo: 'Og', nombre: 'Oganesón', numero: 118, peso: 294, config: '[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶', electronegatividad: null, grupo: 'Gas noble', x: 18, y: 7, color: 'var(--gas-noble)' }
         ];
 
-        function createPeriodicTable() {
-            const table = d3.select('#periodicTable');
+        function crearTablaPeriodica() {
+            const tabla = d3.select('#tablaPeriodica');
             
-            // Create grid cells
-            for (let row = 1; row <= 7; row++) {
-                for (let col = 1; col <= 18; col++) {
-                    const element = elements.find(e => e.x === col && e.y === row);
-                    const cell = table.append('div')
+            // Crear cuadrícula 7x18 + bloques f
+            for(let fila = 1; fila <= 9; fila++) {
+                for(let col = 1; col <= 18; col++) {
+                    const elemento = elementos.find(e => e.x === col && e.y === fila);
+                    const celda = tabla.append('div')
                         .style('grid-column', col)
-                        .style('grid-row', row)
-                        .classed('element', !!element);
+                        .style('grid-row', fila)
+                        .classed('elemento', true)
+                        .style('background', elemento?.color || 'transparent');
 
-                    if (element) {
-                        cell.html(`<div class="number">${element.number}</div>
-                                  <div class="symbol">${element.symbol}</div>`)
-                            .on('mouseover', () => showElementInfo(element))
-                            .on('mouseout', () => d3.select('#infoPanel').style('display', 'none'));
+                    if(elemento) {
+                        celda.html(`
+                            <div class="numero">${elemento.numero}</div>
+                            <div class="simbolo">${elemento.simbolo}</div>
+                            <div class="nombre">${elemento.nombre}</div>
+                        `)
+                        .on('mouseover', () => mostrarInfoElemento(elemento))
+                        .on('mouseout', () => d3.select('#panelInfo').style('display', 'none'));
                     }
                 }
             }
-        }
 
-        function showElementInfo(element) {
-            const panel = d3.select('#infoPanel');
-            panel.style('display', 'block')
-                .select('#elementName').text(element.name);
-            
-            document.getElementById('atomicNumber').textContent = element.number;
-            document.getElementById('atomicWeight').textContent = element.weight;
-            document.getElementById('electronConfig').textContent = element.config;
+            // Añadir lantánidos y actínidos
+            const bloquesF = elementos.filter(e => e.grupo === 'Lantánido' || e.grupo === 'Actínido');
+            const contenedorBloquesF = tabla.append('div')
+                .style('grid-column', '3 / span 14')
+                .style('grid-row', '9')
+                .style('display', 'flex')
+                .style('gap', '2px');
 
-            // Electron visualization
-            const electrons = element.config.match(/\d+[spdf]\d+/g) || [];
-            const structure = d3.select('#atomicStructure').html('');
-            electrons.forEach((orbital, i) => {
-                const electrons = parseInt(orbital.match(/\d+$/)[0]);
-                const radius = (i + 1) * 30;
-                Array.from({length: electrons}).forEach((_, j) => {
-                    structure.append('div')
-                        .classed('electron', true)
-                        .style('transform', `rotate(${(360/electrons)*j}deg) translate(${radius}px)`)
-                        .style('animation', `orbit ${3+(i*2)}s linear infinite`);
-                });
+            bloquesF.forEach(e => {
+                contenedorBloquesF.append('div')
+                    .classed('elemento', true)
+                    .style('background', e.color)
+                    .html(`
+                        <div class="numero">${e.numero}</div>
+                        <div class="simbolo">${e.simbolo}</div>
+                    `)
+                    .on('mouseover', () => mostrarInfoElemento(e))
+                    .on('mouseout', () => d3.select('#panelInfo').style('display', 'none'));
             });
         }
 
-        // Initialize
-        createPeriodicTable();
+        function mostrarInfoElemento(elemento) {
+            const panel = d3.select('#panelInfo');
+            panel.style('display', 'block');
+            
+            panel.select('#nombreElemento').text(elemento.nombre);
+            document.getElementById('numeroAtomico').textContent = elemento.numero;
+            document.getElementById('pesoAtomico').textContent = elemento.peso;
+            document.getElementById('configElectronica').textContent = elemento.config;
+            document.getElementById('electronegatividad').textContent = elemento.electronegatividad || 'N/A';
+            document.getElementById('grupo').textContent = elemento.grupo;
+
+            // Animación de estructura electrónica
+            const estructura = d3.select('#estructuraElectronica').html('');
+            const config = parsearConfigElectronica(elemento.config);
+            
+            config.forEach(({ orbital, electrones }) => {
+                const nivel = parseInt(orbital.match(/\d+/)[0]);
+                const tipoOrbital = orbital.match(/[s|p|d|f]/)[0];
+                
+                const orbita = estructura.append('div')
+                    .classed('orbita', true)
+                    .style('width', `${nivel * 40}px`)
+                    .style('height', `${nivel * 40}px`)
+                    .style('top', `${50 - (nivel * 20)}%`)
+                    .style('left', `${50 - (nivel * 20)}%`);
+
+                for(let i = 0; i < electrones; i++) {
+                    const angulo = (360 / electrones) * i;
+                    orbita.append('div')
+                        .classed('electron', true)
+                        .style('animation', `spin ${5 - nivel}s linear infinite`)
+                        .style('transform', `rotate(${angulo}deg) translateX(${nivel * 20}px)`);
+                }
+
+                orbita.append('div')
+                    .classed('tipo-orbital', true)
+                    .text(`${nivel}${tipoOrbital} (${electrones}e⁻)`);
+            });
+        }
+
+        function parsearConfigElectronica(config) {
+            const regex = /(\d+[s|p|d|f])(\d+|\u00B9|\u00B2|\u00B3|\u00B4|\u00B5|\u00B6|\u00B7|\u00B8|\u00B9|\u2070)/gu;
+            const matches = [...config.matchAll(regex)];
+            
+            return matches.map(match => {
+                const orbital = match[1];
+                const electrones = parseInt(match[2].replace(/[\u00B9-\u2078]/g, 
+                    c => '¹²³⁴⁵⁶⁷⁸⁹⁰'.indexOf(c) + 1 || c));
+                
+                return { orbital, electrones };
+            });
+        }
+
+        // Inicializar
+        crearTablaPeriodica();
     </script>
 </body>
 </html>
